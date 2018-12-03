@@ -14,6 +14,10 @@ Currently this project is under development
 
 # Commands
 
+For those not used to this notation: `|` separates two equivalent options, `<field>` is an obligatory filed and `[field]` is an optional field.
+
+Command recognition is not case sensitive.
+
 * `load <file>`: loads a grammar from specified file. It should be the first command to be called.
 * `dump|print [rules] [sd|fs|firstsymbols] [nonterminals|N] [terminals|T] [axiom]`: shows the grammar specification in screen.
 * `cab|first <cad>`: calculates the first symbols set of the string.
@@ -23,3 +27,4 @@ Currently this project is under development
 * `ll1table`: shows the LL(1) table.
 * `verbose`: toggles the verbosity of the processes. It is thought for debugging.
 * others to be implemented
+
