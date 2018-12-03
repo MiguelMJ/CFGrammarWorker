@@ -64,8 +64,13 @@ class Grammar:
         else:
             self.waitingFirst = set()
             ret = set();
-            for c in N:
-                ret.update(self.first_aux(c))
+            for c in N.split(" "):
+                lastSymFirst = self.first_aux(c)
+                ret.update(lastSymFirst)
+                if not self.EPSILON in lastSymFirst:
+                    if self.EPSILON in ret:
+                        ret.remove(self.EPSILON)
+                    break
             self.firstCache[N] = ret
         return ret;
     def first_aux(self, N):
@@ -85,6 +90,7 @@ class Grammar:
                 #print(r)
                 conc = r.C
                 self.waitingFirst.add(r);
+                i = 0
                 for s in conc: # para cada simbolo del consecuente
                     retaux = self.first_aux(s)
                     ret.update(retaux)
@@ -93,9 +99,11 @@ class Grammar:
                     if not self.EPSILON in retaux:
                         #print(" "*len(self.waitingFirst),end='')
                         #print(self.EPSILON + " not in " + str(retaux))
-                        if self.EPSILON in ret:
-                            ret.remove(self.EPSILON)
                         break
+                    else:
+                        i += 1
+                if i < len(conc):
+                    retaux -= {self.EPSILON}
                 self.waitingFirst.remove(r);
         cab = "CAB("+N+") = "
         #print(" "*len(self.waitingFirst),end='')
@@ -154,22 +162,22 @@ class Grammar:
         return str(sorted(set.union(self.N,self.T)))
     def dumpRules(self):
         ret = ""
-        print(self.rulelist)
         for index in range(len(self.rulelist)):
             ret += "{:<4}".format("R"+str(index)+".") + str(self.rulelist[index]) + "\n"
         return ret
-    def dumpAxiom():
+    def dumpAxiom(self):
         return str(self.Axiom)
     def __str__(self):
-        ret = "GRAMMAR\n"
-        ret +="======="
-        ret += "\nNON TERMINAL SYMBOLS\n"
+        ret = "\nNON TERMINAL SYMBOLS\n"
         ret +=   "--------------------\n"
         ret += self.dumpNonTerminals()
-        ret += "\nTERMINAL SYMBOLS\n"
+        ret += "\n\nTERMINAL SYMBOLS\n"
         ret +=   "----------------\n"
         ret += self.dumpTerminals()
-        ret += "\nRULES\n"
+        ret += "\n\nAXIOM\n"
+        ret +=   "-----\n"
+        ret += self.dumpAxiom()
+        ret += "\n\nRULES\n"
         ret +=   "-----\n"
         ret += self.dumpRules()
         return ret
