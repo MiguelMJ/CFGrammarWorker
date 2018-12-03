@@ -1,3 +1,5 @@
+verbose = False
+
 class Rule:
     def __init__(self, A, C):
         self.A = A
@@ -81,33 +83,37 @@ class Grammar:
         if not N in self.N:
             print("Symbol unknown: "+N)
             return {}
-        #print(" "*len(self.waitingFirst),end='')
-        #print("called CAB(" + N + ")")
+        if verbose:
+            print("-"*len(self.waitingFirst),end='')
+            print("called CAB(" + N + ")")
         ret = set()
         for r in self.ruleset[N]: # para cada regla
-            if not r in self.waitingFirst: # si la regla no esta en espera
-                #print(" "*len(self.waitingFirst),end='')
-                #print(r)
+            if not r in self.waitingFirst: # si la regla no esta en espera, para evitar bucles infinitos
+                retrule = set()
+                if verbose:
+                    print("-"*len(self.waitingFirst),end='')
+                    print(r)
                 conc = r.C
                 self.waitingFirst.add(r);
-                i = 0
                 for s in conc: # para cada simbolo del consecuente
-                    retaux = self.first_aux(s)
-                    ret.update(retaux)
-                    #print(" "*len(self.waitingFirst))
-                    #print("added " + str(retaux))
-                    if not self.EPSILON in retaux:
-                        #print(" "*len(self.waitingFirst),end='')
-                        #print(self.EPSILON + " not in " + str(retaux))
+                    retsym = self.first_aux(s)
+                    retrule.update(retsym)
+                    if verbose:
+                        print("-"*len(self.waitingFirst),end='')
+                        print("added " + str(retsym) + " to " + str(retrule))
+                    if not self.EPSILON in retsym:
+                        if self.EPSILON in retrule:
+                            retrule.remove(self.EPSILON)
+                        if verbose:
+                            print("-"*len(self.waitingFirst),end='')
+                            print(self.EPSILON + " not in " + str(retsym) + ": removed epsilon from this rule and no further searching to do in it.")
                         break
-                    else:
-                        i += 1
-                if i < len(conc):
-                    retaux -= {self.EPSILON}
+                ret.update(retrule)
                 self.waitingFirst.remove(r);
-        cab = "CAB("+N+") = "
-        #print(" "*len(self.waitingFirst),end='')
-        #print(cab+str(ret))
+        if verbose:
+            cab = "CAB("+N+") = "
+            print("-"*len(self.waitingFirst),end='')
+            print(cab+str(ret))
         return ret
     def follow(self,N):
         if N in self.followCache:
@@ -120,19 +126,22 @@ class Grammar:
         ret = set()
         if not N in self.waitingFollow:
             self.waitingFollow.add(N)
-            #print(" "*len(self.waitingFollow),end='')
-            #print("Called SIG("+N+")")
+            if verbose:
+                print("-"*len(self.waitingFollow),end='')
+                print("Called SIG("+N+")")
             for k in self.ruleset:
                 for r in self.ruleset[k]:
                     if N in r.C:
-                        #print(" "*len(self.waitingFollow),end='')
-                        #print(r)
+                        if verbose:
+                            print("-"*len(self.waitingFollow),end='')
+                            print(r)
                         conc = "".join(r.C)
                         i = conc.find(N)
                         while i != -1:
                             conc = conc[i+1:]
-                            #print(" "*len(self.waitingFollow),end='')
-                            #print(conc)
+                            if verbos:
+                                print("-"*len(self.waitingFollow),end='')
+                                print(conc)
                             if conc:
                                 ret.update(self.first(conc))
                             else:
@@ -141,9 +150,10 @@ class Grammar:
                                 ret.remove(self.EPSILON)
                                 ret.update(self.follow_aux(k))
                             i = conc.find(N)
-        #print(" "*len(self.waitingFollow),end='')
-        #print("SIG("+N+") = ",end='')
-        #print(ret)
+        if verbose:
+            print("-"*len(self.waitingFollow),end='')
+            print("SIG("+N+") = ",end='')
+            print(ret)
         return ret
     def firstSymbols(rule):
         ret = set()
@@ -203,6 +213,9 @@ while not cmd in {"exit","quit","end"}:
         g.loadFromFile(args[1])
     elif args[0] == "dump":
         print(g)
+    elif args[0] == "verbose":
+        verbose = not verbose
+        print("verbose = "+str(verbose));
     
     
     
