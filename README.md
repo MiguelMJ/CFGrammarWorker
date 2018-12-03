@@ -13,7 +13,7 @@ Grammars must be specified in a text file with a rule in each line
 * The antecedent of the first rule will be taken as the axiom of the grammar
 * The symbol '_' is used as empty string symbol by default. Soon will be implemented the posibility for the user to change it.
 
-# commands
+# Commands
 
 * load <file>: loads a grammar from specified file.
 * dump: shows the grammar specification in screen.
