@@ -6,6 +6,10 @@ class Rule:
         self.C = C.split()
     def __init__(self, str):
         list = str.split("->")
+        if len(list) < 2:
+            print("error in rule "+list.__str__())
+        elif verbose:
+            print("correctly read rule: "+list.__str__());
         self.A = list[0].replace(" ","")
         self.C = list[1].split()
     def __str__(self):
@@ -36,6 +40,8 @@ class Grammar:
         self.firstCache = {}
         self.followCache = {}
         self.firstSymbolsCache = {}
+        self.ll1table = dict()
+        self.ll1condition = None
     def loadFromFile(self,filename):
         self.__init__()
         index = 0;
@@ -43,9 +49,9 @@ class Grammar:
         text = file.read()
         rules = text.split("\n")
         for r in rules:
-            if r and not r in self.ruleset:
+            if r:
                 self.addRule(r)
-                self.rulelist.append(r)
+                
     def addRule(self, str):
         newrule = Rule(str)
         if not self.ruleset:
@@ -53,13 +59,18 @@ class Grammar:
         if not newrule.A in self.ruleset:
             self.ruleset[newrule.A] = set()
             self.N.add(newrule.A);
-        self.T.update()
-        self.ruleset[newrule.A].add(newrule)
-        self.NUT.update(newrule.A);
-        self.NUT.update(newrule.C);
+        if not newrule in self.ruleset[newrule.A]:
+            self.ruleset[newrule.A].add(newrule)
+            self.rulelist.append(newrule)
+        self.NUT.update(newrule.A)
+        self.NUT.update(newrule.C)
         self.T = self.NUT - self.N;
+        if self.EPSILON in self.T:
+            self.T.remove(self.EPSILON)
+        
     def ruleByNumber(self, n):
-        return rulelist[n]
+        return self.rulelist[n]
+    
     def first(self, N):
         if N in self.firstCache:
             ret = self.firstCache[N]
@@ -75,6 +86,7 @@ class Grammar:
                     break
             self.firstCache[N] = ret
         return ret;
+    
     def first_aux(self, N):
         if not N or N == self.EPSILON:
             return {self.EPSILON}
@@ -115,6 +127,7 @@ class Grammar:
             print("-"*len(self.waitingFirst),end='')
             print(cab+str(ret))
         return ret
+    
     def follow(self,N):
         if N in self.followCache:
             ret = self.followCache[N]
@@ -122,6 +135,7 @@ class Grammar:
             self.waitingFollow = set()
             ret = self.follow_aux(N)
         return ret
+    
     def follow_aux(self,N):
         ret = set()
         if not N in self.waitingFollow:
@@ -139,7 +153,7 @@ class Grammar:
                         i = conc.find(N)
                         while i != -1:
                             conc = conc[i+1:]
-                            if verbos:
+                            if verbose:
                                 print("-"*len(self.waitingFollow),end='')
                                 print(conc)
                             if conc:
@@ -155,14 +169,44 @@ class Grammar:
             print("SIG("+N+") = ",end='')
             print(ret)
         return ret
-    def firstSymbols(rule):
+    
+    def firstSymbols(self,rule):
         ret = set()
-        conc = rule.C
-        ant = rule.A
-        ret = self.first(conc)
-        if self.EPSILON in ret:
-            ret.remove(self.EPSILON)
-            ret.update(self.follow(ant))
+        if rule.isdigit():
+            rule = self.ruleByNumber(int(rule))
+        if rule in self.firstSymbolsCache:
+            ret = self.firstSymbolsCache[rule]
+        else:
+            conc = rule.C
+            ant = rule.A
+            ret = self.first(" ".join(conc))
+            if self.EPSILON in ret:
+                ret.remove(self.EPSILON)
+                ret.update(self.follow(ant))
+            self.firstSymbolsCache[rule] = ret
+        return ret
+    def LL1(self, N, T):
+        ret = list()
+        if (N,T) in self.ll1table:
+            ret = self.ll1table[N,T]
+        else:
+            for ind,rule in enumerate(self.rulelist):
+                if rule.A == N and T in self.firstSymbols(str(ind)):
+                    ret.append(" ".join(rule.C))
+            self.ll1table[N,T] = ret
+        return ret
+    def LL1condition(self):
+        if self.ll1condition == None:
+            ret = True
+            for n in self.N:
+                for t in self.T:
+                    ret = len(self.LL1(n,t)) < 2
+                    if not ret:
+                        break
+                if not ret:
+                    break
+        else:
+            ret = self.ll1condition
         return ret
     def dumpNonTerminals(self):
         return str(sorted(self.N))
@@ -174,6 +218,11 @@ class Grammar:
         ret = ""
         for index in range(len(self.rulelist)):
             ret += "{:<4}".format("R"+str(index)+".") + str(self.rulelist[index]) + "\n"
+        return ret
+    def dumpFirstSymbols(self):
+        ret = ""
+        for index in range(len(self.rulelist)):
+            ret += "{:<5}".format("SD(") + str(self.rulelist[index]) + ") = " + str(self.firstSymbols(str(index))) +"\n"
         return ret
     def dumpAxiom(self):
         return str(self.Axiom)
@@ -202,20 +251,52 @@ cmd = ""
 g = Grammar()
 while not cmd in {"exit","quit","end"}:
     cmd = input(">")
-    args = cmd.split(" ")
-    if args[0] == "cab":
+    args = cmd.strip().split(" ")
+    cmd = args[0].lower()
+    if cmd in {"cab","first"}:
         for i in args[1:]:
             print(g.first(i))
-    elif args[0] == "sig":
+    elif cmd in {"sig","follow"}:
         for i in args[1:]:
             print(g.follow(i))
-    elif args[0] == "load":
+    elif cmd in {"sd","fs","firstsymbols"}:
+        for i in args[1:]:
+            if i and i.isdigit():
+                print(g.ruleByNumber(int(i)))
+                print(g.firstSymbols(i))
+    elif cmd in {"ll1table"}:
+        for n in g.N:
+            for t in g.T:
+                print("LL1("+n+","+t+")","=",g.LL1(n,t))
+    elif cmd in {"ll1"}:
+        print(g.LL1condition())
+    elif cmd in {"load"}:
         g.loadFromFile(args[1])
-    elif args[0] == "dump":
-        print(g)
-    elif args[0] == "verbose":
+    elif cmd in {"dump", "print"}:
+        for what in args[1:]:
+            if what.lower() in {"rules"}:
+                print(g.dumpRules())
+            if what.lower() in {"sd","fs","firstsymbols"}:
+                print(g.dumpFirstSymbols())
+            elif what.lower() in {"nonterminals", "N"}:
+                print(g.dumpNonTerminals())
+            elif what.lower() in {"terminals", "T"}:
+                print(g.dumpTerminals())
+            elif what.lower() in {"axiom"}:
+                print(g.dumpAxiom())
+        if len(args) == 1:
+            print(g)
+    elif cmd == "verbose":
         verbose = not verbose
         print("verbose = "+str(verbose));
+    elif cmd.isdigit():
+        if int(cmd) < len(g.rulelist):
+            print("{:<4}".format("R"+cmd+"."), end='')
+            print(g.ruleByNumber(int(cmd)))
+        else:
+            print("Rules indexed between 0 and "+str(len(g.rulelist)-1))
+    elif not cmd in {"exit","quit","end"}:
+        print("Unknown command")
     
     
     
