@@ -5,7 +5,7 @@ class Rule:
     def __init__(self, str):
         list = str.split("->")
         self.A = list[0].replace(" ","")
-        self.C = list = list[1].split()
+        self.C = list[1].split()
     def __str__(self):
         
         return str(self.A) + " -> " + " ".join(self.C)
@@ -23,6 +23,7 @@ class Rule:
 class Grammar:
     def __init__(self):
         self.ruleset = dict()
+        self.rulelist = []
         self.N = set()
         self.T = set()
         self.Axiom = None
@@ -35,11 +36,14 @@ class Grammar:
         self.firstSymbolsCache = {}
     def loadFromFile(self,filename):
         self.__init__()
+        index = 0;
         file = open(filename)
         text = file.read()
         rules = text.split("\n")
         for r in rules:
-            addRule(r)
+            if r and not r in self.ruleset:
+                self.addRule(r)
+                self.rulelist.append(r)
     def addRule(self, str):
         newrule = Rule(str)
         if not self.ruleset:
@@ -52,6 +56,8 @@ class Grammar:
         self.NUT.update(newrule.A);
         self.NUT.update(newrule.C);
         self.T = self.NUT - self.N;
+    def ruleByNumber(self, n):
+        return rulelist[n]
     def first(self, N):
         if N in self.firstCache:
             ret = self.firstCache[N]
@@ -73,21 +79,27 @@ class Grammar:
         #print(" "*len(self.waitingFirst),end='')
         #print("called CAB(" + N + ")")
         ret = set()
-        if N in self.ruleset:
-            for r in self.ruleset[N]:
-                if not r in self.waitingFirst:
-                    #print(" "*len(self.waitingFirst),end='')
-                    #print(r)
-                    conc = r.C
-                    self.waitingFirst.add(r);
-                    for s in conc:
-                        ret.update(self.first_aux(s))
-                        if not self.EPSILON in ret:
-                            break
-                    self.waitingFirst.remove(r);
-            cab = "CAB("+N+") = "
-            #print(" "*len(self.waitingFirst),end='')
-            #print(cab+str(ret))
+        for r in self.ruleset[N]: # para cada regla
+            if not r in self.waitingFirst: # si la regla no esta en espera
+                #print(" "*len(self.waitingFirst),end='')
+                #print(r)
+                conc = r.C
+                self.waitingFirst.add(r);
+                for s in conc: # para cada simbolo del consecuente
+                    retaux = self.first_aux(s)
+                    ret.update(retaux)
+                    #print(" "*len(self.waitingFirst))
+                    #print("added " + str(retaux))
+                    if not self.EPSILON in retaux:
+                        #print(" "*len(self.waitingFirst),end='')
+                        #print(self.EPSILON + " not in " + str(retaux))
+                        if self.EPSILON in ret:
+                            ret.remove(self.EPSILON)
+                        break
+                self.waitingFirst.remove(r);
+        cab = "CAB("+N+") = "
+        #print(" "*len(self.waitingFirst),end='')
+        #print(cab+str(ret))
         return ret
     def follow(self,N):
         if N in self.followCache:
@@ -142,9 +154,9 @@ class Grammar:
         return str(sorted(set.union(self.N,self.T)))
     def dumpRules(self):
         ret = ""
-        for key in sorted(self.ruleset.keys()):
-            for rule in sorted(self.ruleset[key]):
-                ret += str(rule) + "\n"
+        print(self.rulelist)
+        for index in range(len(self.rulelist)):
+            ret += "{:<4}".format("R"+str(index)+".") + str(self.rulelist[index]) + "\n"
         return ret
     def dumpAxiom():
         return str(self.Axiom)
@@ -173,14 +185,16 @@ g = Grammar()
 while not cmd in {"exit","quit","end"}:
     cmd = input(">")
     args = cmd.split(" ")
-    if args[0] == "CAB":
+    if args[0] == "cab":
         for i in args[1:]:
-            print(g.first(args[i]))
-    elif args[0] == "SIG":
+            print(g.first(i))
+    elif args[0] == "sig":
         for i in args[1:]:
-            print(g.follos([i])
-    elif args[0] == "LOAD":
+            print(g.follow(i))
+    elif args[0] == "load":
         g.loadFromFile(args[1])
+    elif args[0] == "dump":
+        print(g)
     
     
     
