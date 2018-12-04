@@ -21,7 +21,7 @@ Command recognition is not case sensitive.
 * `cab|first <cad>`: calculates the first symbols set of the string.
 * `sig|follow <cad>` <NonTerminal>: calculates de following symbols set of the non terminal symbol.
 * `sd|fs|firstsymbols <cad>` <number>: calculates the set of first symbols of the rule indexed with that number. To see the rules index, use `dump rules`.
-* `ll1`: tells wether the grammar satisfies the LL(1) condition or not.
+* `ll1 [s1] [s2] ... [sn]`: If no arguments are given, it just tells wether the garmmar satisfies the LL(1) condition. Otherwise, and if the grammar is LL(1), it evaluates the string that the arguments form.
 * `ll1table`: shows the LL(1) table.
 * `verbose`: toggles the verbosity of the processes. It is thought for debugging.
 * others to be implemented
