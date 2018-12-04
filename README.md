@@ -1,6 +1,6 @@
 # CFGrammarWorker
-Python CLI program for analyzing context free grammars with LL(1) and SLR(1). 
-
+Python CLI program for analyzing context free grammars with LL(1) and SLR(1).
+It should be used with linux.
 # How to specify grammars and rules
 * Grammars must be specified in a text file with a rule in each line.
 * Rules are specified as follows:
