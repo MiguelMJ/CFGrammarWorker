@@ -1,11 +1,8 @@
 A -> E $
-
 E -> T
 E -> a
 E -> e T .
-
 T -> _
 T -> V t
-
 V -> b V b
 V -> v

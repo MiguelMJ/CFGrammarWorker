@@ -1,3 +1,5 @@
+import os
+
 verbose = False
 
 class Rule:
@@ -208,6 +210,48 @@ class Grammar:
         else:
             ret = self.ll1condition
         return ret
+    def LL1analysis(self,cad):
+        if self.LL1condition():
+            stack = list(self.Axiom)
+            cad = list(cad)
+            error = False
+            counter = 1
+            while not error and stack and cad:
+                print(counter,"---")
+                print("left:",cad)
+                print("stack:",stack)
+                counter += 1
+                x = stack[0]
+                a = cad[0]
+                if x in self.N:
+                    alpha = self.LL1(x,a)[::-1]
+                    if len(alpha) == 0:
+                        error = True
+                        print("No match in LL(1) table")
+                    else:
+                        print(x,"->",alpha)
+                        stack = alpha[0].split() + stack[1:]
+                elif x in self.T:
+                    if x == a:
+                        print("Accepted symbol:",a);
+                        stack = stack[1:]
+                        cad = cad[1:]
+                    else:
+                        error = True
+                        print("Symbol",x,"not expected. Instead",self.first(stack[0]))
+                else:
+                    error = True
+                    print("Symbol",x,"not in alphabet",self.NUT)
+            print("---")
+            if error or stack or cad:
+                print("String not recognized")
+                print("stack:",stack)
+                print("string:",cad)
+            else:
+                print("Strings belongs to the language.")
+        else:
+            print("LL(1) condition not satisfied")
+            return None
     def dumpNonTerminals(self):
         return str(sorted(self.N))
     def dumpTerminals(self):
@@ -247,10 +291,15 @@ class Grammar:
                 ret += repr(rule) + '\n'
         return ret
     
+os.system('figlet CFGW')
+print('Context Free Grammar Worker')
+print('https://github.com/MiguelMJ/CFGrammarWorker/')
+print('............................................')
 cmd = ""
 g = Grammar()
+prompt = "NoGrammar"
 while not cmd in {"exit","quit","end"}:
-    cmd = input(">")
+    cmd = input("\033[38;2;0;150;0m"+prompt+" >> \033[0m")
     args = cmd.strip().split(" ")
     cmd = args[0].lower()
     if cmd in {"cab","first"}:
@@ -269,9 +318,14 @@ while not cmd in {"exit","quit","end"}:
             for t in g.T:
                 print("LL1("+n+","+t+")","=",g.LL1(n,t))
     elif cmd in {"ll1"}:
-        print(g.LL1condition())
+        if len(args) == 1:
+            print(g.LL1condition())
+        else:
+            g.LL1analysis(args[1:])
+        
     elif cmd in {"load"}:
         g.loadFromFile(args[1])
+        prompt = args[1]
     elif cmd in {"dump", "print"}:
         for what in args[1:]:
             if what.lower() in {"rules"}:
