@@ -2,7 +2,7 @@
 Python CLI program for analyzing context free grammars with LL(1) and SLR(1). 
 
 # How to specify grammars and rules
-* Grammars must be specified in a text file with a rule in each line
+* Grammars must be specified in a text file with a rule in each line.
 * Rules are specified as follows:
   * Antecedent -> Consequent1 Consequent2 ... ConsequentN
   * Note that context free grammars must have a single symbol in the antecedent.
