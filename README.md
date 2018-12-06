@@ -4,7 +4,7 @@ Python CLI program for analyzing context free grammars with LL(1) and SLR(1).
 ## How to specify grammars and rules
 * Grammars must be specified in a text file with a rule in each line.
 * Rules are specified as follows:
-  * Antecedent -> Consequent1 Consequent2 ... ConsequentN
+  * `Antecedent -> Consequent1 Consequent2 ... ConsequentN`
   * Note that context free grammars must have a single symbol in the antecedent.
 * Every antecedent will be interpreted as a non terminal symbol of the grammar. Each other symbol will be included in the terminal symbols set.
 * The antecedent of the first rule will be taken as the axiom of the grammar. The last symbol of the first rule, will be taken as the end of sentence.
