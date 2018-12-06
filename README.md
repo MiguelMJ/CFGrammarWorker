@@ -9,7 +9,7 @@ Python CLI program for analyzing context free grammars with LL(1) and SLR(1).
 * Every antecedent will be interpreted as a non terminal symbol of the grammar. Each other symbol will be included in the terminal symbols set.
 * The antecedent of the first rule will be taken as the axiom of the grammar. The last symbol of the first rule, will be taken as the end of sentence.
 * The symbol `_` is reserved. It is used as the empty string metasymbol.
-* The symbols `.` and `;` are not reserved, but will cause conflicts with the command `cierre|closure|close`. It won't conflict with `slr1`, though. This is because the first command must interpret a set of strings a LR(0) items, while the second one just builds them internally.
+* The symbols `.` and `;` are not reserved, but will cause conflicts with the command `cierre|closure|close`. It won't conflict with `slr1`, though. This is because the first command must interpret a string as a set of LR(0) items, while the second one just builds them internally.
 
 ## Commands
 
