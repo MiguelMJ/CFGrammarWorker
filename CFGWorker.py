@@ -439,7 +439,8 @@ class Grammar:
                     else:
                         print("Unknown action",action)
                         error = True
-            if error:
+            print(counter,"---")
+            if error or not accepted:
                 print("String not recognized")
                 print("left:",cad)
                 print("stack:",stack)
