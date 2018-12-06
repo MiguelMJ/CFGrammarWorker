@@ -23,11 +23,11 @@ Command recognition is not case sensitive.
 * `sig|follow <nt>`: calculates de following symbols set of the non terminal symbol.
 * `ll1 [s1] [s2] ... [sn]`: If no arguments are given, it just tells wether the garmmar satisfies the LL(1) condition. Otherwise, and if the grammar is LL(1), it evaluates the string that the arguments form.
 * `cierre|closure|close <item1>; <item1>; ... ;<itemn>`: calculates the closure set of the one provided. To specify the LR(0) items, do as with the rules and separating alpha and beta with a dot `.`. Also, separate each item with `;`
-* `slr1 [s1] [s2] ... [sn]`: Behaves as LL(1), but checking the action table instead.
+* `slr1 [s1] [s2] ... [sn]`: SLR(1) alternative to `ll1`. I checks the action table instead.
 * `verbose`: toggles the verbosity of the processes. It is thought for debugging.
 * `exit|end|quit` to exit the program.
 * Writing just a number will print the rule indexed with it, if there is one.
 
-## Contribute
+# Contribute
  
 Currently this project is under development. I know the code is not as pythonic as it could be, so I hope to clean it a bit soon. The program does not handle errors properly yet neither, that's another thing to be implemented. Also, it requires more exhaustive testing, so if you find any issues, feel free to report it.
