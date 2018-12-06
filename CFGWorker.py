@@ -1,4 +1,24 @@
 #!/usr/bin/python3
+
+'''
+CFGW  is a Python3 program for analyzing context free grammars with LL(1) and SLR(1).
+Copyright (C) 2018 Miguel Mejía Jiménez
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+'''
+
 import os
 
 verbose = False
@@ -552,7 +572,7 @@ print(" / __| __/ __\ \    / /__ _ _| |_____ _ _ ")
 print("| (__| _| (_ |\ \/\/ / _ \ '_| / / -_) '_|")
 print(" \___|_| \___| \_/\_/\___/_| |_\_\___|_|  ")
 print("\033[0;1m")
-print('Context Free Grammar Worker')
+print('Context Free Grammar Worker v1,0')
 print('https://github.com/MiguelMJ/CFGrammarWorker/')
 print("\033[0m",end='')
 print('............................................')
