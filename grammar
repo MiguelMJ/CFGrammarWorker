@@ -1,8 +1,8 @@
-A -> E $
-E -> T
-E -> a
-E -> e T .
-T -> _
-T -> V t
-V -> b V b
-V -> v
+Axioma -> Expresion Endofi
+Expresion -> Tanto
+Expresion -> arriba
+Expresion -> este Tanto punto
+Tanto -> _
+Tanto -> Vi testa
+Vi -> bol Vi bol
+Vi -> var
